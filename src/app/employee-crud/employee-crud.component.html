@@ -1,0 +1,273 @@
+<div class="employee-crud-container">
+  <div class="header">
+    <h2>Employee Management System</h2>
+    <p>Manage SharePoint Employee List - Full CRUD Operations</p>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Search and Add Section -->
+  <div class="actions-section" *ngIf="!isLoading">
+    <div class="search-container">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()" 
+        placeholder="Search employees..."
+        class="search-input"
+      />
+      <button class="search-btn" (click)="onSearch()">🔍 Search</button>
+    </div>
+    
+    <button class="add-btn" (click)="showAddForm()" *ngIf="!showForm">
+      ➕ Add New Employee
+    </button>
+  </div>
+
+  <!-- Employee Form -->
+  <div class="form-container" *ngIf="showForm">
+    <div class="form-header">
+      <h3>{{ isEditMode ? 'Edit Employee' : 'Add New Employee' }}</h3>
+    </div>
+    
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="title">Title/Full Name *</label>
+          <input 
+            type="text" 
+            id="title" 
+            formControlName="title" 
+            class="form-control"
+            [class.error]="isFieldInvalid('title')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('title')">
+            {{ getFieldError('title') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select 
+            id="status" 
+            formControlName="status" 
+            class="form-control"
+            [class.error]="isFieldInvalid('status')"
+          >
+            <option value="">Select Status</option>
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+          <div class="error-message" *ngIf="isFieldInvalid('status')">
+            {{ getFieldError('status') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name *</label>
+          <input 
+            type="text" 
+            id="firstName" 
+            formControlName="firstName" 
+            class="form-control"
+            [class.error]="isFieldInvalid('firstName')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('firstName')">
+            {{ getFieldError('firstName') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name *</label>
+          <input 
+            type="text" 
+            id="lastName" 
+            formControlName="lastName" 
+            class="form-control"
+            [class.error]="isFieldInvalid('lastName')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('lastName')">
+            {{ getFieldError('lastName') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            class="form-control"
+            [class.error]="isFieldInvalid('email')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('email')">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            formControlName="phone" 
+            class="form-control"
+            [class.error]="isFieldInvalid('phone')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('phone')">
+            {{ getFieldError('phone') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="department">Department *</label>
+          <select 
+            id="department" 
+            formControlName="department" 
+            class="form-control"
+            [class.error]="isFieldInvalid('department')"
+          >
+            <option value="">Select Department</option>
+            <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+          </select>
+          <div class="error-message" *ngIf="isFieldInvalid('department')">
+            {{ getFieldError('department') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="position">Position *</label>
+          <input 
+            type="text" 
+            id="position" 
+            formControlName="position" 
+            class="form-control"
+            [class.error]="isFieldInvalid('position')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('position')">
+            {{ getFieldError('position') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hireDate">Hire Date *</label>
+          <input 
+            type="date" 
+            id="hireDate" 
+            formControlName="hireDate" 
+            class="form-control"
+            [class.error]="isFieldInvalid('hireDate')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('hireDate')">
+            {{ getFieldError('hireDate') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="salary">Salary</label>
+          <input 
+            type="number" 
+            id="salary" 
+            formControlName="salary" 
+            class="form-control"
+            min="0"
+            step="0.01"
+            [class.error]="isFieldInvalid('salary')"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('salary')">
+            {{ getFieldError('salary') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-submit" [disabled]="employeeForm.invalid || isLoading">
+          {{ isEditMode ? 'Update Employee' : 'Create Employee' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="cancelForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Employee List -->
+  <div class="employee-list" *ngIf="!isLoading">
+    <div class="list-header">
+      <h3>Employee List ({{ filteredEmployees.length }} records)</h3>
+    </div>
+
+    <div *ngIf="filteredEmployees.length === 0" class="no-data">
+      <p>No employees found. {{ searchTerm ? 'Try adjusting your search.' : 'Add your first employee!' }}</p>
+    </div>
+
+    <div class="table-container" *ngIf="filteredEmployees.length > 0">
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Phone</th>
+            <th>Hire Date</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let employee of filteredEmployees" [class.inactive]="employee.Status === 'Inactive'">
+            <td>{{ employee.Id }}</td>
+            <td>
+              <div class="employee-name">
+                <strong>{{ employee.Title }}</strong>
+                <small>{{ employee.FirstName }} {{ employee.LastName }}</small>
+              </div>
+            </td>
+            <td>{{ employee.Email }}</td>
+            <td>
+              <span class="department-badge" [class]="'dept-' + employee.Department.toLowerCase()">
+                {{ employee.Department }}
+              </span>
+            </td>
+            <td>{{ employee.Position }}</td>
+            <td>{{ employee.Phone || 'N/A' }}</td>
+            <td>{{ employee.HireDate | date:'shortDate' }}</td>
+            <td>
+              <span *ngIf="employee.Salary" class="salary">
+                ${{ employee.Salary | number:'1.2-2' }}
+              </span>
+              <span *ngIf="!employee.Salary" class="no-salary">N/A</span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="employee.Status === 'Active'" [class.inactive]="employee.Status === 'Inactive'">
+                {{ employee.Status }}
+              </span>
+            </td>
+            <td class="actions">
+              <button class="btn-edit" (click)="editEmployee(employee)" title="Edit Employee">
+                ✏️
+              </button>
+              <button class="btn-delete" (click)="deleteEmployee(employee.Id!)" title="Delete Employee">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
